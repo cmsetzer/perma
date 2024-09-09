@@ -1,5 +1,6 @@
 import csv
 from datetime import timedelta
+from decimal import Decimal, DecimalException
 import itertools
 import logging
 import re
@@ -482,20 +483,29 @@ def manage_single_registrar(request, registrar_id):
         'form': form
     })
 
-@user_passes_test_or_403(lambda user: user.is_staff)
-def approve_pending_registrar(request, registrar_id):
-    """ Perma admins can approve account requests from libraries """
 
+@user_passes_test_or_403(lambda user: user.is_staff)
+def approve_pending_registrar(request: HttpRequest, registrar_id: int):
+    """A view enabling admins to approve or deny a registrar account."""
     target_registrar = get_object_or_404(Registrar, id=registrar_id)
     target_registrar_user = target_registrar.pending_users.first()
 
     if request.method == 'POST':
-
         with transaction.atomic():
 
             new_status = request.POST.get("status")
             if new_status in ["approved", "denied"]:
                 target_registrar.status = new_status
+
+                # If base rate is supplied (and is a valid decimal), set it on the registrar
+                if base_rate_raw := request.POST.get('base_rate') is not None:
+                    try:
+                        base_rate = Decimal(base_rate_raw)
+                    except DecimalException:
+                        pass
+                    else:
+                        target_registrar.base_rate = base_rate
+
                 target_registrar.save()
 
                 if new_status == "approved":
@@ -510,10 +520,15 @@ def approve_pending_registrar(request, registrar_id):
 
         return HttpResponseRedirect(reverse('user_management_manage_registrar'))
 
-    return render(request, 'user_management/approve_pending_registrar.html', {
-        'target_registrar': target_registrar,
-        'target_registrar_user': target_registrar_user,
-        'this_page': 'users_registrars'})
+    return render(
+        request,
+        'user_management/approve_pending_registrar.html',
+        {
+            'target_registrar': target_registrar,
+            'target_registrar_user': target_registrar_user,
+            'this_page': 'users_registrars',
+        },
+    )
 
 
 @user_passes_test_or_403(lambda user: user.is_staff or user.is_registrar_user() or user.is_organization_user)
