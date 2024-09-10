@@ -1931,7 +1931,7 @@ class UserManagementViewsTestCase(PermaTestCase):
 
         # Registrar and user forms are displayed,
         # inputs are blank, and labels are customized as expected
-        response = self.get('libraries').content
+        response = self.get('sign_up_libraries').content
         soup = BeautifulSoup(response, 'html.parser')
         self.check_library_labels(soup)
         self.check_lib_user_labels(soup)
@@ -1957,7 +1957,7 @@ class UserManagementViewsTestCase(PermaTestCase):
                                     'a-last_name': new_lib_user['last'],
                                     'csrfmiddlewaretoken': '11YY3S2DgOw2DHoWVEbBArnBMdEA2svu' }
         session.save()
-        response = self.get('libraries').content
+        response = self.get('sign_up_libraries').content
         soup = BeautifulSoup(response, 'html.parser')
         self.check_library_labels(soup)
         self.check_lib_user_labels(soup)
@@ -1972,7 +1972,7 @@ class UserManagementViewsTestCase(PermaTestCase):
                 self.assertFalse(input.get('value', ''))
 
         # If there's an unsuccessful submission, field labels are still as expected.
-        response = self.post('libraries').content
+        response = self.post('sign_up_libraries').content
         soup = BeautifulSoup(response, 'html.parser')
         self.check_library_labels(soup)
         self.check_lib_user_labels(soup)
@@ -1981,7 +1981,7 @@ class UserManagementViewsTestCase(PermaTestCase):
 
         # Registrar form is displayed, but user form is not,
         # inputs are blank, and labels are still customized as expected
-        response = self.get('libraries', user="test_user@example.com").content
+        response = self.get('sign_up_libraries', user='test_user@example.com').content
         soup = BeautifulSoup(response, 'html.parser')
         self.check_library_labels(soup)
         inputs = soup.select('input')
@@ -2003,7 +2003,7 @@ class UserManagementViewsTestCase(PermaTestCase):
         # Not logged in, submit all fields sans first and last name
         new_lib = self.new_lib()
         new_lib_user = self.new_lib_user()
-        self.submit_form('libraries',
+        self.submit_form('sign_up_libraries',
                           data = { 'b-email': new_lib['email'],
                                    'b-website': new_lib['website'],
                                    'b-name': new_lib['name'],
@@ -2017,7 +2017,7 @@ class UserManagementViewsTestCase(PermaTestCase):
         # Not logged in, submit all fields including first and last name
         new_lib = self.new_lib()
         new_lib_user = self.new_lib_user()
-        self.submit_form('libraries',
+        self.submit_form('sign_up_libraries',
                           data = { 'b-email': new_lib['email'],
                                    'b-website': new_lib['website'],
                                    'b-name': new_lib['name'],
@@ -2036,7 +2036,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             'raw_email': 'test_user@example.com',
             'normalized_email': 'test_user@example.com',
         }
-        self.submit_form('libraries',
+        self.submit_form('sign_up_libraries',
                           data = { 'b-email': new_lib['email'],
                                    'b-website': new_lib['website'],
                                    'b-name': new_lib['name'] },
@@ -2050,7 +2050,7 @@ class UserManagementViewsTestCase(PermaTestCase):
     def test_new_library_form_honeypot(self):
         new_lib = self.new_lib()
         new_lib_user = self.new_lib_user()
-        self.submit_form('libraries',
+        self.submit_form('sign_up_libraries',
                           data = { 'b-email': new_lib['email'],
                                    'b-website': new_lib['website'],
                                    'b-name': new_lib['name'],
@@ -2073,14 +2073,14 @@ class UserManagementViewsTestCase(PermaTestCase):
         # Not logged in, blank submission reports correct fields required
         # ('email' catches both registrar and user email errors, unavoidably,
         # so test with just that missing separately)
-        self.submit_form('libraries',
+        self.submit_form('sign_up_libraries',
                           data = {},
                           form_keys = ['registrar_form', 'user_form'],
                           error_keys = ['website', 'name', 'email'])
         self.assertEqual(len(mail.outbox), 0)
 
         # (checking user email missing separately)
-        self.submit_form('libraries',
+        self.submit_form('sign_up_libraries',
                           data = {'b-email': new_lib['email'],
                                   'b-website': new_lib['website'],
                                   'b-name': new_lib['name']},
@@ -2093,7 +2093,7 @@ class UserManagementViewsTestCase(PermaTestCase):
                 'b-website': new_lib['website'],
                 'b-name': new_lib['name'],
                 'a-e-address': self.randomize_capitalization(existing_lib_user['email'])}
-        self.submit_form('libraries',
+        self.submit_form('sign_up_libraries',
                           data = data,
                           form_keys = ['registrar_form', 'user_form'],
                           success_url = '/login?next=/libraries/')
@@ -2104,7 +2104,7 @@ class UserManagementViewsTestCase(PermaTestCase):
         # (actually, this doesn't currently fail)
 
         # Logged in, blank submission reports all fields required
-        self.submit_form('libraries',
+        self.submit_form('sign_up_libraries',
                           data = {},
                           user = existing_lib_user['email'],
                           error_keys = ['website', 'name', 'email'])

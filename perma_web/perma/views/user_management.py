@@ -1761,7 +1761,7 @@ def redirect_to_reset(request, token):
 
 
 @ratelimit(rate=settings.REGISTER_MINUTE_LIMIT, block=True, key=ratelimit_ip_key)
-def libraries(request):
+def sign_up_libraries(request: HttpRequest):
     """
     Info for libraries, allow them to request accounts
     """
