@@ -2250,7 +2250,7 @@ class UserManagementViewsTestCase(PermaTestCase):
 
     ### Firms ###
 
-    def create_firm_organization_form(self):
+    def create_firm_registrar_form(self):
         return {
             'name': f'Firm {random()}',
             'email': 'test-firm@example.com',
@@ -2287,7 +2287,7 @@ class UserManagementViewsTestCase(PermaTestCase):
         '''
             Does the firm signup form submit as expected? Success cases.
         '''
-        firm_organization_form = self.create_firm_organization_form()
+        firm_registrar_form = self.create_firm_registrar_form()
         firm_usage_form = self.create_firm_usage_form()
         firm_user_form = self.create_firm_user_form()
         existing_user = {'email': 'test_user@example.com'}
@@ -2311,7 +2311,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             data={
                 'e-address': self.randomize_capitalization(existing_user['email']),
                 'would_be_org_admin': firm_user_form['would_be_org_admin'],
-                **firm_organization_form,
+                **firm_registrar_form,
                 **firm_usage_form,
             },
             success_url=reverse('firm_request_response'),
@@ -2326,7 +2326,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             data={
                 'e-address': firm_user_form['raw_email'],
                 'would_be_org_admin': firm_user_form['would_be_org_admin'],
-                **firm_organization_form,
+                **firm_registrar_form,
                 **firm_usage_form,
             },
             success_url=reverse('firm_request_response'),
@@ -2341,7 +2341,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             data={
                 'e-address': firm_user_form['raw_email'],
                 'would_be_org_admin': firm_user_form['would_be_org_admin'],
-                **firm_organization_form,
+                **firm_registrar_form,
                 **firm_usage_form,
                 'create_account': True,
             },
@@ -2364,7 +2364,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             data={
                 'e-address': firm_user_form['raw_email'],
                 'would_be_org_admin': firm_user_form['would_be_org_admin'],
-                **firm_organization_form,
+                **firm_registrar_form,
                 **firm_usage_form,
                 'create_account': True,
             },
@@ -2385,7 +2385,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             data={
                 'e-address': self.randomize_capitalization(existing_user['email']),
                 'would_be_org_admin': firm_user_form['would_be_org_admin'],
-                **firm_organization_form,
+                **firm_registrar_form,
                 **firm_usage_form,
                 'create_account': True,
             },
@@ -2398,7 +2398,7 @@ class UserManagementViewsTestCase(PermaTestCase):
 
     @override_settings(REQUIRE_JS_FORM_SUBMISSIONS=False)
     def test_new_firm_form_honeypot(self):
-        firm_organization_form = self.create_firm_organization_form()
+        firm_registrar_form = self.create_firm_registrar_form()
         firm_usage_form = self.create_firm_usage_form()
         firm_user_form = self.create_firm_user_form()
         self.submit_form(
@@ -2407,7 +2407,7 @@ class UserManagementViewsTestCase(PermaTestCase):
                 'e-address': firm_user_form['raw_email'],
                 'create_account': True,
                 'telephone': "I'm a bot.",
-                **firm_organization_form,
+                **firm_registrar_form,
                 **firm_usage_form,
             },
             success_url=reverse('register_email_instructions'),
@@ -2426,7 +2426,7 @@ class UserManagementViewsTestCase(PermaTestCase):
         self.submit_form(
             'sign_up_firm',
             data={},
-            form_keys=['organization_form', 'usage_form', 'user_form'],
+            form_keys=['registrar_form', 'usage_form', 'user_form'],
             error_keys=['email', 'would_be_org_admin'],
         )
         self.assertEqual(len(mail.outbox), 0)
@@ -2436,7 +2436,7 @@ class UserManagementViewsTestCase(PermaTestCase):
         self.submit_form(
             'sign_up_firm',
             data={},
-            form_keys=['organization_form', 'usage_form', 'user_form'],
+            form_keys=['registrar_form', 'usage_form', 'user_form'],
             user='test_user@example.com',
             error_keys=['email', 'would_be_org_admin'],
         )
