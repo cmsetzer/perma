@@ -2,6 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.http import HttpRequest
 from django.template import Context, RequestContext, engines
 from django.utils import timezone
 
@@ -62,11 +63,18 @@ def send_user_email(to_address, template, context):
     # success_count = send_mass_mail(tuple(to_send), fail_silently=False)
     # return success_count
 
-def send_admin_email(title, from_address, request, template="email/default.txt", context={}):
+def send_admin_email(
+    title: str,
+    from_address: str,
+    request: HttpRequest,
+    template: str = 'email/default.txt',
+    context: dict | None = None,
+):
     """
         Send a message on behalf of a user to the admins.
         Use reply-to for the user address so we can use email services that require authenticated from addresses.
     """
+    context = {} if context is None else context
     message = EmailMessage(
         title,
         render_email(template, context, request),
