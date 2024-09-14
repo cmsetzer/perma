@@ -2418,7 +2418,14 @@ class UserManagementViewsTestCase(PermaTestCase):
             'sign_up_firm',
             data={},
             form_keys=['registrar_form', 'usage_form', 'user_form'],
-            error_keys=['email', 'would_be_org_admin'],
+            error_keys=[
+                'email',
+                'website',
+                'estimated_number_of_accounts',
+                'estimated_perma_links_per_month',
+                'name',
+                'would_be_org_admin',
+            ],
         )
         self.assertEqual(len(mail.outbox), 0)
 
@@ -2429,7 +2436,14 @@ class UserManagementViewsTestCase(PermaTestCase):
             data={},
             form_keys=['registrar_form', 'usage_form', 'user_form'],
             user='test_user@example.com',
-            error_keys=['email', 'would_be_org_admin'],
+            error_keys=[
+                'email',
+                'website',
+                'estimated_number_of_accounts',
+                'estimated_perma_links_per_month',
+                'name',
+                'would_be_org_admin',
+            ],
         )
         self.assertEqual(len(mail.outbox), 0)
 
