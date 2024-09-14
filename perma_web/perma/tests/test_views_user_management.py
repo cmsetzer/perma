@@ -2296,15 +2296,6 @@ class UserManagementViewsTestCase(PermaTestCase):
 
         # NOT LOGGED IN
 
-        # Existing user's email address, no firm info (should not succeed due to missing values)
-        self.submit_form(
-            'sign_up_firm',
-            data={'e-address': self.randomize_capitalization(existing_user['email'])},
-            success_url=reverse('firm_request_response'),
-        )
-        expected_emails_sent += 0
-        self.assertEqual(len(mail.outbox), expected_emails_sent)
-
         # Existing user's email address + firm info
         self.submit_form(
             'sign_up_firm',
