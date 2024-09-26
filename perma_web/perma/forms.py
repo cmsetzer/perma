@@ -293,20 +293,22 @@ class CreateUserFormWithFirm(UserForm):
     add firm to the create user form
     """
 
-    would_be_org_admin = forms.ChoiceField(
+    would_be_account_admin = forms.ChoiceField(
         widget=forms.Select, choices=[(True, 'Yes'), (False, 'No')], initial=(False, 'No')
     )
 
     class Meta:
         model = LinkUser
-        fields = ['first_name', 'last_name', 'email', 'would_be_org_admin']
+        fields = ['first_name', 'last_name', 'email', 'would_be_account_admin']
 
     def __init__(self, *args, **kwargs):
         super(CreateUserFormWithFirm, self).__init__(*args, **kwargs)
         self.fields['first_name'].label = "Your first name"
         self.fields['last_name'].label = "Your last name"
         self.fields['email'].label = "Your email"
-        self.fields['would_be_org_admin'].label = 'Would you be an administrator on this account?'
+        self.fields[
+            'would_be_account_admin'
+        ].label = 'Would you be an administrator on this account?'
 
 
 class CreateUserFormWithUniversity(UserForm):
