@@ -1916,7 +1916,7 @@ class UserManagementViewsTestCase(PermaTestCase):
         id = Registrar.objects.get(email=new_lib['email']).id
         approve_url = "http://testserver{}".format(reverse('user_management_approve_pending_registrar', args=[id]))
         self.assertIn(approve_url, message.body)
-        self.assertEqual(message.subject, "Perma.cc new library registrar account request")
+        self.assertEqual(message.subject, 'Perma.cc new registrar account request')
         self.assertEqual(message.from_email, our_address)
         self.assertEqual(message.recipients(), [our_address])
         self.assertDictEqual(message.extra_headers, {'Reply-To': user['raw_email']})
@@ -2307,7 +2307,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             },
             success_url=reverse('firm_request_response'),
         )
-        expected_emails_sent += 1
+        expected_emails_sent += 2
         self.assertEqual(len(mail.outbox), expected_emails_sent)
         self.check_firm_email(mail.outbox[expected_emails_sent - 1], existing_user['email'])
 
@@ -2322,7 +2322,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             },
             success_url=reverse('firm_request_response'),
         )
-        expected_emails_sent += 1
+        expected_emails_sent += 2
         self.assertEqual(len(mail.outbox), expected_emails_sent)
         self.check_firm_email(mail.outbox[expected_emails_sent - 1], firm_user_form['raw_email'])
 
