@@ -2270,17 +2270,22 @@ class UserManagementViewsTestCase(PermaTestCase):
             'normalized_email': email.lower(),
             'first': 'Joe',
             'last': 'Yacobówski',
-            'would_be_org_admin': bool(getrandbits(1)),
+            'would_be_account_admin': bool(getrandbits(1)),
         }
 
-    def check_firm_email(self, message, firm_email):
+    def check_firm_email(self, message: str, firm_email: str | None = None):
         our_address = settings.DEFAULT_FROM_EMAIL
 
         # Doesn't check email contents yet; too many variations possible presently
-        self.assertEqual(message.subject, "Perma.cc new law firm account information request")
-        self.assertEqual(message.from_email, our_address)
-        self.assertEqual(message.recipients(), [our_address])
-        self.assertDictEqual(message.extra_headers, {'Reply-To': firm_email})
+        self.assertEqual(message.subject, 'Perma.cc new paid registrar account request')
+        self.assertEqual(message.from_email.lower(), our_address)
+
+        if firm_email is not None:
+            self.assertEqual(message.recipients(), [firm_email.lower(), our_address])
+            self.assertDictEqual(message.extra_headers, {'Reply-To': firm_email.lower()})
+        else:
+            self.assertEqual(message.recipients(), [firm_email.lower(), our_address])
+            self.assertDictEqual(message.extra_headers, {})
 
     @override_settings(REQUIRE_JS_FORM_SUBMISSIONS=False)
     def test_new_firm_success(self):
@@ -2301,13 +2306,13 @@ class UserManagementViewsTestCase(PermaTestCase):
             'sign_up_firm',
             data={
                 'e-address': self.randomize_capitalization(existing_user['email']),
-                'would_be_org_admin': firm_user_form['would_be_org_admin'],
+                'would_be_account_admin': firm_user_form['would_be_account_admin'],
                 **firm_registrar_form,
                 **firm_usage_form,
             },
             success_url=reverse('firm_request_response'),
         )
-        expected_emails_sent += 2
+        expected_emails_sent += 1
         self.assertEqual(len(mail.outbox), expected_emails_sent)
         self.check_firm_email(mail.outbox[expected_emails_sent - 1], existing_user['email'])
 
@@ -2316,13 +2321,13 @@ class UserManagementViewsTestCase(PermaTestCase):
             'sign_up_firm',
             data={
                 'e-address': firm_user_form['raw_email'],
-                'would_be_org_admin': firm_user_form['would_be_org_admin'],
+                'would_be_account_admin': firm_user_form['would_be_account_admin'],
                 **firm_registrar_form,
                 **firm_usage_form,
             },
             success_url=reverse('firm_request_response'),
         )
-        expected_emails_sent += 2
+        expected_emails_sent += 1
         self.assertEqual(len(mail.outbox), expected_emails_sent)
         self.check_firm_email(mail.outbox[expected_emails_sent - 1], firm_user_form['raw_email'])
 
@@ -2331,17 +2336,17 @@ class UserManagementViewsTestCase(PermaTestCase):
             'sign_up_firm',
             data={
                 'e-address': firm_user_form['raw_email'],
-                'would_be_org_admin': firm_user_form['would_be_org_admin'],
+                'would_be_account_admin': firm_user_form['would_be_account_admin'],
                 **firm_registrar_form,
                 **firm_usage_form,
                 'create_account': True,
             },
             success_url=reverse('register_email_instructions'),
         )
-        expected_emails_sent += 2
+        expected_emails_sent += 1
         self.assertEqual(len(mail.outbox), expected_emails_sent)
         self.check_new_activation_email(
-            mail.outbox[expected_emails_sent - 2], firm_user_form['raw_email']
+            mail.outbox[expected_emails_sent - 1], firm_user_form['raw_email']
         )
         self.check_firm_email(mail.outbox[expected_emails_sent - 1], firm_user_form['raw_email'])
 
@@ -2354,7 +2359,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             'sign_up_firm',
             data={
                 'e-address': firm_user_form['raw_email'],
-                'would_be_org_admin': firm_user_form['would_be_org_admin'],
+                'would_be_account_admin': firm_user_form['would_be_account_admin'],
                 **firm_registrar_form,
                 **firm_usage_form,
                 'create_account': True,
@@ -2375,7 +2380,7 @@ class UserManagementViewsTestCase(PermaTestCase):
             'sign_up_firm',
             data={
                 'e-address': self.randomize_capitalization(existing_user['email']),
-                'would_be_org_admin': firm_user_form['would_be_org_admin'],
+                'would_be_account_admin': firm_user_form['would_be_account_admin'],
                 **firm_registrar_form,
                 **firm_usage_form,
                 'create_account': True,
@@ -2424,7 +2429,7 @@ class UserManagementViewsTestCase(PermaTestCase):
                 'estimated_number_of_accounts',
                 'estimated_perma_links_per_month',
                 'name',
-                'would_be_org_admin',
+                'would_be_account_admin',
             ],
         )
         self.assertEqual(len(mail.outbox), 0)
@@ -2442,7 +2447,7 @@ class UserManagementViewsTestCase(PermaTestCase):
                 'estimated_number_of_accounts',
                 'estimated_perma_links_per_month',
                 'name',
-                'would_be_org_admin',
+                'would_be_account_admin',
             ],
         )
         self.assertEqual(len(mail.outbox), 0)
